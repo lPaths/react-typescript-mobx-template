@@ -1,15 +1,12 @@
 import React from 'react'
 import { render } from 'react-dom'
 import App from './App'
+import './index.less'
 
 import { Provider } from 'mobx-react'
-import AppState from './stores/appState'
+import { stores } from './stores'
 
 import * as serviceWorker from './serviceWorker'
-
-const stores = {
-  appState: new AppState()
-}
 
 render(
   <Provider stores={stores}>

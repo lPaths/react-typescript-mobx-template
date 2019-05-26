@@ -1,11 +1,16 @@
 import { observable, action } from 'mobx'
 
-class AppState {
-  @observable isMenuCollapse = false
+export interface AppStateTypes {
+  isGlobalLoading?: boolean
+  loading?: () => void
+}
+
+class AppState implements AppStateTypes {
+  @observable isGlobalLoading = false
 
   @action
-  handleSiderCollapse () {
-    this.isMenuCollapse = !this.isMenuCollapse
+  loading = () => {
+    this.isGlobalLoading = !this.isGlobalLoading
   }
 }
 

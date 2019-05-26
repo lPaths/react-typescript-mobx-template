@@ -1,37 +1,48 @@
 import React, { Component } from 'react'
-import { Layout, Button, Icon } from 'antd'
-import 'antd/dist/antd.css'
 import { inject, observer } from 'mobx-react'
+import { BrowserRouter as Router, Switch, Route } from 'react-router-dom'
 
-import AppMenu from  './layout/Sider'
-import PageContent from './components/PageContent.js'
+import { StorageTypes, AppStateTypes } from './stores'
 
-const { Sider } = Layout
+import { LoadableComponent } from './components/Loadable'
+import { noAuthenRoutes } from './routers/routes'
 
-@inject('stores')
+import LoadingBar from './components/Loading'
+import NotFound from './pages/404'
+
+@inject((storage: StorageTypes) => storage.stores)
 @observer
-class App extends Component<any> {
-  handleToggle = () => {
-    this.props.stores.appState.handleSiderCollapse()
-  }
-
+class App extends Component<AppStateTypes> {
   render () {
-    const { isMenuCollapse } = this.props.stores.appState
+    const {
+      props: { appState = { isGlobalLoading: false } }
+    } = this
     return (
-      <>
-        <Layout tagName='main' style={{ minHeight: '100vh' }}>
-          <Sider
-            theme='light'
-            collapsible
-            breakpoint='lg'
-            collapsed={isMenuCollapse}
-            onCollapse={this.handleToggle}
-          >
-            <AppMenu />
-          </Sider>
-          <PageContent />
-        </Layout>
-      </>
+      <div>
+        <div style={{ height: 3 }}>
+          {appState.isGlobalLoading && <LoadingBar />}
+        </div>
+        <Router>
+        <>
+          <Switch>
+            {noAuthenRoutes.map((route, index) => {
+              const { path, exact } = route
+              return (
+                <Route
+                  key={index.toString()}
+                  exact={exact}
+                  path={path}
+                  render={() => {
+                    const Comp = LoadableComponent(import(`./pages${path}`))
+                    return <Comp />
+                  }}
+                />
+            )})}
+            <Route component={NotFound} />
+          </Switch>
+        </>
+      </Router>
+      </div>
     )
   }
 }
